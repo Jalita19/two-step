@@ -1,3 +1,11 @@
+
+// Import statements should be at the top
+import { Carousel } from './Carousel.js';
+
+// Your code follows
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize Carousel or other code
+});
 import * as Carousel from "./Carousel.js";
 import axios from "axios";
 
@@ -9,9 +17,147 @@ const infoDump = document.getElementById("infoDump");
 const progressBar = document.getElementById("progressBar");
 // The get favourites button element.
 const getFavouritesBtn = document.getElementById("getFavouritesBtn");
+const carousel = document.getElementById("carousel");
+
 
 // Step 0: Store your API key here for reference and easy access.
 const API_KEY = "live_K2bfEpr5Jzrmb8uhCmVEK0hnB1monEXYIOacSTpRsr6B0BZ2W8N8xWDCZc32jPfD";
+
+
+
+// Function to handle breed selection change
+async function handleBreedSelectChange() {
+    const breedId = breedSelect.value;
+    if (!breedId) return;
+
+    try {
+        // Fetch images for the selected breed
+        const imagesResponse = await fetch(`https://api.thecatapi.com/v1/images/search?breed_ids=${breedId}&limit=5`);
+        if (!imagesResponse.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const images = await imagesResponse.json();
+
+        // Clear and populate the carousel
+        populateCarousel(images);
+
+        // Fetch breed details
+        const breedResponse = await fetch(`https://api.thecatapi.com/v1/breeds/${breedId}`);
+        if (!breedResponse.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const breedData = await breedResponse.json();
+
+        // Update the infoDump with breed information
+        updateInfoDump(breedData);
+
+    } catch (error) {
+        console.error('Error loading breed images or details:', error);
+    }
+}
+
+// Function to populate the carousel with images
+function populateCarousel(images) {
+    carousel.innerHTML = ''; // Clear previous images
+
+    // Create and append new image elements
+    images.forEach(image => {
+        const imgElement = document.createElement('img');
+        imgElement.src = image.url;
+        imgElement.alt = 'Cat image';
+        imgElement.classList.add('carousel-image'); // Add class for styling
+        carousel.appendChild(imgElement);
+    });
+
+    // Optionally restart the carousel if needed (depends on carousel implementation)
+    restartCarousel();
+}
+
+// Function to update the infoDump with breed details
+function updateInfoDump(breedData) {
+    infoDump.innerHTML = `
+        <h2>${breedData.name}</h2>
+        <p><strong>Description:</strong> ${breedData.description}</p>
+        <p><strong>Origin:</strong> ${breedData.origin}</p>
+        <p><strong>Life Span:</strong> ${breedData.life_span} years</p>
+        <p><strong>Temperament:</strong> ${breedData.temperament}</p>
+    `;
+}
+
+// Dummy function to restart the carousel (adjust based on your carousel implementation)
+function restartCarousel() {
+    // Implement carousel initialization or restart logic here
+    console.log('Carousel restarted');
+}
+
+// Add event listener for breed selection
+breedSelect.addEventListener('change', handleBreedSelectChange);
+
+// Function to load initial breeds into the select element
+async function initialLoad() {
+    try {
+        const apiUrl = 'https://api.thecatapi.com/v1/breeds';
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const breeds = await response.json();
+
+        // Clear any existing options in the select element
+        breedSelect.innerHTML = '';
+
+        // Create and append new <option> elements for each breed
+        breeds.forEach(breed => {
+            const option = document.createElement('option');
+            option.value = breed.id; // Set the value attribute to the breed ID
+            option.textContent = breed.name; // Set the text content to the breed name
+            breedSelect.appendChild(option); // Append the <option> to the <select>
+        });
+
+        // Optionally initialize with the first breed's data
+        if (breedSelect.options.length > 0) {
+            breedSelect.value = breedSelect.options[0].value; // Set default selection
+            handleBreedSelectChange(); // Initialize carousel with the default breed
+        }
+    } catch (error) {
+        console.error('Error loading breeds:', error);
+    }
+}
+
+
+// Function to populate the carousel with images
+function populateCarousel(images) {
+  images.forEach(image => {
+      const itemElement = document.createElement('div');
+      itemElement.classList.add('carousel-item');
+
+      const imgElement = document.createElement('img');
+      imgElement.src = image.url;
+      imgElement.alt = 'Cat image';
+      itemElement.appendChild(imgElement);
+
+      const favButton = document.createElement('button');
+      favButton.textContent = '❤️'; // Heart icon or text
+      favButton.addEventListener('click', () => favourite(image.id)); // Call the favourite function on click
+      itemElement.appendChild(favButton);
+
+      carousel.appendChild(itemElement);
+  });
+
+  
+
+  // Optionally restart the carousel if needed (depends on carousel implementation)
+  restartCarousel();
+}
+
+// Dummy function to restart the carousel (adjust based on your carousel implementation)
+function restartCarousel() {
+  // Implement carousel initialization or restart logic here
+  console.log('Carousel restarted');
+}
+
+// Call the function immediately
+initialLoad();
 
 /**
  * 1. Create an async function "initialLoad" that does the following:

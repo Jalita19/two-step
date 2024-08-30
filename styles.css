@@ -76,3 +76,19 @@ body {
   .card .img-wrapper {
     height: 17em;
   }
+}
+#progressBarContainer {
+  width: 100%;
+  background-color: #f3f3f3;
+  border: 1px solid #ccc;
+  height: 20px;
+  margin-top: 10px;
+}
+
+#progressBar {
+  width: 0%;
+  height: 100%;
+  background-color: #4caf50;
+  transition: width 0.5s;
+}
+  
